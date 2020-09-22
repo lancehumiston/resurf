@@ -6,7 +6,8 @@ class SurfDataFields {
   /*
    * Constants
    */
-  // Speed at which the rider is considered to be riding a wave i.e. not paddling
+  // Speed at which the rider is considered to be riding a wave i.e. not
+  // paddling
   static const maxPaddleSpeed = 3.75;
   // Number of consecutive speed readings required to change the `isRiding` flag
   static const jitterTolerance = 3;
@@ -16,7 +17,8 @@ class SurfDataFields {
    */
   // Flag indicating that the user is riding a wave
   hidden var isRiding = false;
-  // Collection of timestamps where the rider is above or below the 'maxPaddleSpeed'
+  // Collection of timestamps where the rider is above or below the
+  // 'maxPaddleSpeed'
   hidden var speedReadingTimes = [];
 
   /*
@@ -51,13 +53,18 @@ class SurfDataFields {
   }
 
   function getTimestamp() {
-    var currentTime = Sys.getClockTime();
+    var secondsPerHour = 3600;
+    var timeZoneOffsetSeconds = Sys.getClockTime().timeZoneOffset;
+    var currentTime = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 
-    return currentTime.hour.format("%02d") + ":" +
+    return currentTime.year.format("%02d") + "-" +
+           currentTime.month.format("%02d") + "-" +
+           currentTime.day.format("%02d") + "T" +
+           currentTime.hour.format("%02d") + ":" +
            currentTime.min.format("%02d") + ":" +
-           currentTime.sec.format("%02d") + "Z" +
-           (currentTime.timeZoneOffset / 3600).format("%02d") + ":" +
-           (currentTime.timeZoneOffset % 3600).format("%02d");
+           currentTime.sec.format("%02d") +
+           (timeZoneOffsetSeconds / secondsPerHour).format("%+03d") + ":" +
+           (timeZoneOffsetSeconds % secondsPerHour).format("%02d");
   }
 
   function checkJitterTolerance(currentSpeed) {
@@ -106,7 +113,8 @@ class SurfDataFields {
       return;
     }
 
-    // Check if the speed has been consistently low long enough to trust the reading
+    // Check if the speed has been consistently low long enough to trust the
+    // reading
     if (!checkJitterTolerance(speed)) {
       return;
     }
