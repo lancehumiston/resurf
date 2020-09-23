@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/lancehumiston/resurf/garmin"
+	"github.com/lancehumiston/resurf/surfline"
 )
 
 func main() {
@@ -17,4 +18,7 @@ func main() {
 
 	surfTimes := garmin.GetSurfTimes(file)
 	log.Println(surfTimes)
+
+	camRewinds := surfline.GetCamRewinds("wc-windansea")
+	log.Println(camRewinds)
 }

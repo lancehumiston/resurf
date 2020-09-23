@@ -13,7 +13,7 @@ const (
 	AppFilePath = "This PC/vívoactive 3 Music/Primary/GARMIN/APPS/SurfData.prg"
 	// TimesFilePath = "This PC/vívoactive 3 Music/Primary/GARMIN/APPS/LOGS/SurfData.txt"
 	// TimesFilePath - file path to riding times log file
-	TimesFilePath = "./SurfData.txt"
+	TimesFilePath = "c:/users/lance.humiston/documents/projects/go/resurf/SurfData.txt"
 )
 
 // GetSurfTimes - returns a map of wave times, parsed from the reader's content, in the format {<startTime>:<endTime>}
