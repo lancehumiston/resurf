@@ -16,14 +16,14 @@ const (
 	TimesFilePath = "c:/users/lance.humiston/documents/projects/go/resurf/SurfData.txt"
 )
 
-// GetSurfTimes - returns a map of wave times, parsed from the reader's content, in the format {<startTime>:<endTime>}
-func GetSurfTimes(reader io.Reader) map[time.Time]time.Time {
-	times := make(map[time.Time]time.Time)
+// GetWaveTimes - returns a slice of wave times, parsed from the reader content, in ascending datetime order
+func GetWaveTimes(reader io.Reader) []WaveTime {
+	var waveTimes []WaveTime
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		waveTimes := scanner.Text()
-		parts := strings.Split(waveTimes, "|")
+		times := scanner.Text()
+		parts := strings.Split(times, "|")
 		start, err := time.Parse(time.RFC3339, parts[0])
 		if err != nil {
 			log.Fatal(err)
@@ -32,8 +32,16 @@ func GetSurfTimes(reader io.Reader) map[time.Time]time.Time {
 		if err != nil {
 			log.Fatal(err)
 		}
-		times[start] = end
+
+		waveTime := WaveTime{
+			StartAtUtc: start.UTC(),
+			EndAtUtc:   end.UTC(),
+		}
+
+		waveTimes = append(waveTimes, waveTime)
+		// reverse for descending datetime order
+		// waveTimes = append([]WaveTime{waveTime}, waveTimes...)
 	}
 
-	return times
+	return waveTimes
 }
