@@ -10,7 +10,10 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // GetCamRewinds - returns the recent surf cam rewinds from specified camAlias in descending datetime order
@@ -28,31 +31,39 @@ func GetCamRewinds(camAlias string) []CamRewind {
 // DownloadRecordings - downloads the rewind videos and sets the LocalFilePath on the camRewinds
 func DownloadRecordings(camRewinds []*CamRewind) ([]*CamRewind, error) {
 	var urls []string
+	var wg sync.WaitGroup
+	var err error
 
 	for _, v := range camRewinds {
 		if v.RecordingURL == "" {
 			continue
 		}
 
-		v.LocalFilePath = fmt.Sprintf("./%v-%v.mp4", toFileFormat(v.StartAtUtc.Format(time.RFC3339)), toFileFormat(v.EndAtUtc.Format(time.RFC3339)))
+		v.LocalFilePath = fmt.Sprintf("./%v-%v.mp4", toFileFormat(v.StartAtUtc), toFileFormat(v.EndAtUtc))
 
 		if contains(urls, v.RecordingURL) {
 			continue
 		}
+
+		urls = append(urls, v.RecordingURL)
+
 		if fileExists(v.LocalFilePath) {
-			urls = append(urls, v.RecordingURL)
 			continue
 		}
 
-		err := downloadFile(v.LocalFilePath, v.RecordingURL)
-		if err != nil {
-			return camRewinds, err
-		}
+		wg.Add(1)
+		go func(path string, url string) {
+			defer wg.Done()
 
-		urls = append(urls, v.RecordingURL)
+			if e := downloadFile(path, url); e != nil {
+				errors.Wrap(err, e.Error())
+			}
+		}(v.LocalFilePath, v.RecordingURL)
 	}
 
-	return camRewinds, nil
+	wg.Wait()
+
+	return camRewinds, err
 }
 
 func fileExists(filename string) bool {
@@ -63,8 +74,8 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-func toFileFormat(s string) string {
-	s = strings.Replace(s, " ", "", -1)
+func toFileFormat(t time.Time) string {
+	s := strings.Replace(t.Format(time.RFC3339), " ", "", -1)
 	return strings.Replace(s, ":", "-", -1)
 }
 
