@@ -18,3 +18,5 @@
 # garmin
 garmin/.metadata
 garmin/SurfData/bin
+*.mp4
+*.txt
