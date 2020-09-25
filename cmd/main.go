@@ -69,5 +69,5 @@ func getCamAlias(camAlias string) string {
 		camIdx = 0
 	}
 
-	camAlias = config.Appsettings.CamAliases[camIdx]
+	return config.Appsettings.CamAliases[camIdx]
 }
