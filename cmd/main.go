@@ -26,7 +26,7 @@ func main() {
 	flag.StringVar(&camAlias, "c", defaultCamAlias, camAliasUsage+" (shorthand)")
 	flag.Parse()
 
-	camAlias := getCamAlias(camAlias)
+	updateCamAlias(&camAlias)
 	log.Println("Using cam alias:", camAlias)
 
 	file, err := os.Open(garmin.TimesFilePath)
@@ -55,9 +55,9 @@ func main() {
 	log.Println("Happy resurfing!")
 }
 
-func getCamAlias(camAlias string) string {
-	if camAlias != defaultCamAlias || len(config.Appsettings.CamAliases) == 0 {
-		return camAlias
+func updateCamAlias(camAlias *string) {
+	if *camAlias != defaultCamAlias || len(config.Appsettings.CamAliases) == 0 {
+		return
 	}
 
 	for i, v := range config.Appsettings.CamAliases {
@@ -69,5 +69,5 @@ func getCamAlias(camAlias string) string {
 		camIdx = 0
 	}
 
-	return config.Appsettings.CamAliases[camIdx]
+	camAlias = &config.Appsettings.CamAliases[camIdx]
 }
