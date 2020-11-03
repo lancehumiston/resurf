@@ -49,8 +49,13 @@ func trimRecording(id int, w garmin.WaveTime, c surfline.CamRewind, wg *sync.Wai
 	args := []string{"-i", c.LocalFilePath, "-ss", position, "-t", duration, filePath}
 	cmd := exec.Command("ffmpeg", args...)
 	log.Printf("[%d] Running command with args %v...", id, args)
-	err := cmd.Run()
-	log.Printf("[%d] Finished command with error: %v", id, err)
+
+	if err := cmd.Run(); err != nil {
+		log.Printf("[%d] Finished command with error: %v", id, err)
+		return
+	}
+
+	log.Printf("[%d] Finished command successfully", id)
 }
 
 func formatTimeArg(seconds float64) string {
