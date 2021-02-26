@@ -9,9 +9,6 @@ import (
 )
 
 const (
-	// AppFilePath - file path to garmin application
-	AppFilePath = "This PC/vívoactive 3 Music/Primary/GARMIN/APPS/SurfData.prg"
-	// TimesFilePath = "This PC/vívoactive 3 Music/Primary/GARMIN/APPS/LOGS/SurfData.txt"
 	// TimesFilePath - file path to riding times log file
 	TimesFilePath = "c:/users/lance.humiston/documents/projects/go/resurf/SurfData.txt"
 )
@@ -39,8 +36,6 @@ func GetWaveTimes(reader io.Reader) []WaveTime {
 		}
 
 		waveTimes = append(waveTimes, waveTime)
-		// reverse for descending datetime order
-		// waveTimes = append([]WaveTime{waveTime}, waveTimes...)
 	}
 
 	return waveTimes
