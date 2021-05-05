@@ -14,19 +14,19 @@ import (
 )
 
 const (
-	defaultCamAlias = "wc-windansea"
+	defaultCamAlias = "wc-hbpiersclose"
 	camAliasUsage   = "the Surfline cam alias 'wc-*'"
 )
 
 func main() {
 	log.Println("Welcome to resurf")
 
-	var camAlias string
-	flag.StringVar(&camAlias, "camAlias", defaultCamAlias, camAliasUsage)
-	flag.StringVar(&camAlias, "c", defaultCamAlias, camAliasUsage+" (shorthand)")
+	var camAliasFlag string
+	flag.StringVar(&camAliasFlag, "camAlias", defaultCamAlias, camAliasUsage)
+	flag.StringVar(&camAliasFlag, "c", defaultCamAlias, camAliasUsage+" (shorthand)")
 	flag.Parse()
 
-	updateCamAlias(&camAlias)
+	camAlias := getCamAlias(camAliasFlag)
 	log.Println("Using cam alias:", camAlias)
 
 	file, err := os.Open(garmin.TimesFilePath)
@@ -55,9 +55,9 @@ func main() {
 	log.Println("Happy resurfing!")
 }
 
-func updateCamAlias(camAlias *string) {
-	if *camAlias != defaultCamAlias || len(config.Appsettings.CamAliases) == 0 {
-		return
+func getCamAlias(camAlias string) string {
+	if camAlias != defaultCamAlias || len(config.Appsettings.CamAliases) == 0 {
+		return camAlias
 	}
 
 	for i, v := range config.Appsettings.CamAliases {
@@ -69,5 +69,5 @@ func updateCamAlias(camAlias *string) {
 		camIdx = 0
 	}
 
-	camAlias = &config.Appsettings.CamAliases[camIdx]
+	return config.Appsettings.CamAliases[camIdx]
 }

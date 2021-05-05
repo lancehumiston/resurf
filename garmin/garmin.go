@@ -10,7 +10,7 @@ import (
 
 const (
 	// TimesFilePath - file path to riding times log file
-	TimesFilePath = "c:/users/lance.humiston/documents/projects/go/resurf/SurfData.txt"
+	TimesFilePath = "./SurfData.txt"
 )
 
 // GetWaveTimes - returns a slice of wave times, parsed from the reader content, in ascending datetime order
