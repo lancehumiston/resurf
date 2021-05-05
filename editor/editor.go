@@ -39,10 +39,10 @@ func TrimRecordings(waveTimes []garmin.WaveTime, camRewinds []*surfline.CamRewin
 func trimRecording(id int, w garmin.WaveTime, c surfline.CamRewind, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	filePath := fmt.Sprintf(fmt.Sprintf("./out-%d.mp4", id))
+	filePath := fmt.Sprintf("./out-%d.mp4", id)
 
 	// use buffer to account for delay in the watch recognizing the wave
-	const bufferSeconds = 5
+	const bufferSeconds = 7
 	position := formatTimeArg(math.Max(w.StartAtUtc.Sub(c.StartAtUtc).Seconds()-bufferSeconds, 0))
 	duration := formatTimeArg(w.EndAtUtc.Sub(w.StartAtUtc).Seconds() + bufferSeconds)
 
