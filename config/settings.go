@@ -21,25 +21,11 @@ var Appsettings Settings
 
 func init() {
 	if fileExists(filepath) {
-		content, err := ioutil.ReadFile(filepath)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		if err := json.Unmarshal(content, &Appsettings); err != nil {
-			log.Panic(err)
-		}
+		readSettingsFromFilePath()
 		return
 	}
 
-	Appsettings.CamAliases = make([]string, 0)
-	appsettings, err := json.Marshal(Appsettings)
-	if err != nil {
-		log.Panic(err)
-	}
-	if err := ioutil.WriteFile(filepath, appsettings, 0644); err != nil {
-		log.Panic(err)
-	}
+	writeSettingsToFilePath()
 }
 
 func fileExists(filename string) bool {
@@ -48,4 +34,26 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func readSettingsFromFilePath() {
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if err := json.Unmarshal(content, &Appsettings); err != nil {
+		log.Panic(err)
+	}
+}
+
+func writeSettingsToFilePath() {
+	Appsettings.CamAliases = make([]string, 0)
+	appsettings, err := json.Marshal(Appsettings)
+	if err != nil {
+		log.Panic(err)
+	}
+	if err := ioutil.WriteFile(filepath, appsettings, 0644); err != nil {
+		log.Panic(err)
+	}
 }
