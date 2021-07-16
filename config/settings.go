@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 )
 
 // Settings - application settings
 type Settings struct {
-	CamAliases []string `json:"camAliases"`
+	CamAliases []string      `json:"camAliases"`
+	WaveTime   time.Duration `json:"waveTime"`
 }
 
 const (
@@ -49,6 +51,7 @@ func readSettingsFromFilePath() {
 
 func writeSettingsToFilePath() {
 	Appsettings.CamAliases = make([]string, 0)
+	Appsettings.WaveTime, _ = time.ParseDuration("30s")
 	appsettings, err := json.Marshal(Appsettings)
 	if err != nil {
 		log.Panic(err)

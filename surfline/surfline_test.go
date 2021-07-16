@@ -14,7 +14,7 @@ func TestGetCamRewinds_ValidCamAlias_ReturnsCamRewinds(t *testing.T) {
 	response := GetCamRewinds(camAlias)
 
 	// Assert
-	if response == nil || len(response) == 0 {
+	if len(response) == 0 {
 		t.Fatalf("unexpected response:%v", response)
 	}
 	actual := response[0].RecordingURL
@@ -35,7 +35,7 @@ func TestDownloadRecordings_ValidCamRewinds_ReturnsCamRewindsWithLocalFilePathTo
 	if err != nil {
 		t.Fatalf("unexpected error %v", err)
 	}
-	if response == nil || len(response) == 0 {
+	if len(response) == 0 {
 		t.Fatalf("unexpected response:%v", response)
 	}
 	actual := response[0].LocalFilePath

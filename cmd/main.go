@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/lancehumiston/resurf/config"
 	"github.com/lancehumiston/resurf/editor"
@@ -16,18 +17,28 @@ import (
 const (
 	defaultCamAlias = "wc-hbpiersclose"
 	camAliasUsage   = "the Surfline cam alias 'wc-*'"
+	waveTimeUsage   = "the timespan that should be subtracted from the wave end timestamp in the event of a manually recorded wave"
+)
+
+var (
+	defaultWaveTime, _ = time.ParseDuration("30s")
 )
 
 func main() {
 	log.Println("Welcome to resurf")
 
 	var camAliasFlag string
+	var waveTimeFlag time.Duration
 	flag.StringVar(&camAliasFlag, "camAlias", defaultCamAlias, camAliasUsage)
 	flag.StringVar(&camAliasFlag, "c", defaultCamAlias, camAliasUsage+" (shorthand)")
+	flag.DurationVar(&waveTimeFlag, "waveTime", defaultWaveTime, waveTimeUsage)
+	flag.DurationVar(&waveTimeFlag, "t", defaultWaveTime, waveTimeUsage+" (shorthand)")
 	flag.Parse()
 
 	camAlias := getCamAlias(camAliasFlag)
 	log.Println("Using cam alias:", camAlias)
+	waveTime := getWaveTime(waveTimeFlag)
+	log.Println("Using wave time:", waveTime)
 
 	file, err := os.Open(garmin.TimesFilePath)
 	if err != nil {
@@ -35,7 +46,7 @@ func main() {
 	}
 	defer file.Close()
 
-	waveTimes := garmin.GetWaveTimes(file)
+	waveTimes := garmin.GetWaveTimes(file, waveTime)
 	log.Println(waveTimes)
 
 	camRewinds := surfline.GetCamRewinds(camAlias)
@@ -70,4 +81,18 @@ func getCamAlias(camAlias string) string {
 	}
 
 	return config.Appsettings.CamAliases[camIdx]
+}
+
+func getWaveTime(waveTime time.Duration) time.Duration {
+	if waveTime != defaultWaveTime || config.Appsettings.WaveTime == 0 {
+		return waveTime
+	}
+
+	fmt.Printf("What wave time would you like to use? (default '%s')", defaultWaveTime)
+	var wt time.Duration
+	if _, err := fmt.Scanf("%v", &wt); err != nil {
+		return wt
+	}
+
+	return config.Appsettings.WaveTime
 }

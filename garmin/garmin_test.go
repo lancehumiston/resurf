@@ -25,7 +25,7 @@ func TestGetWaveTimes_ValidTimes_ReturnsWaveTimes(t *testing.T) {
 	}
 
 	// Act
-	response := GetWaveTimes(r)
+	response := GetWaveTimes(r, 30)
 
 	// Assert
 	if !reflect.DeepEqual(response, expected) {
