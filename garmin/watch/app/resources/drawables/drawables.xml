@@ -1,0 +1,4 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="surfer_icon.png" />
+    <bitmap id="Surfer" filename="surfer.png" />
+</drawables>
