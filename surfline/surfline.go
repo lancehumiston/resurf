@@ -14,18 +14,46 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/playwright-community/playwright-go"
 )
 
 // GetCamRewinds - returns the recent surf cam rewinds from specified camAlias in descending datetime order
 func GetCamRewinds(camAlias string) []CamRewind {
-	url := fmt.Sprintf("https://www.surfline.com/surfdata/video-rewind/video_rewind.cfm?camalias=%s", camAlias)
-	res, err := http.Get(url)
+	pw, err := playwright.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("could not start playwright: %v", err)
 	}
-	defer res.Body.Close()
+	browser, err := pw.Chromium.Launch()
+	if err != nil {
+		log.Fatalf("could not launch browser: %v", err)
+	}
+	page, err := browser.NewPage()
+	if err != nil {
+		log.Fatalf("could not create page: %v", err)
+	}
 
-	return parse(res.Body)
+	// Bypass CF bot detection
+	page.SetExtraHTTPHeaders(map[string]string{
+		"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+		"Accept-Language": "en-US,en;q=0.9",
+	})
+	if _, err = page.Goto("https://www.surfline.com/surfdata/video-rewind/video_rewind.cfm?camalias=" + camAlias); err != nil {
+		log.Fatalf("could not goto: %v", err)
+	}
+
+	html, err := page.Content()
+	if err != nil {
+		log.Fatalf("could get html: %v", err)
+	}
+	rewinds, err := parse(strings.NewReader(html))
+	if err != nil {
+		log.Fatalf("could not parse html: %v", err)
+	}
+
+	page.Close()
+	browser.Close()
+
+	return rewinds
 }
 
 // DownloadRecordings - downloads the rewind videos and sets the LocalFilePath on the camRewinds
@@ -108,18 +136,24 @@ func downloadFile(filepath string, url string) error {
 	return err
 }
 
-func parse(reader io.Reader) []CamRewind {
+func parse(reader io.Reader) ([]CamRewind, error) {
 	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Parse the recordings from HTML
-	re := regexp.MustCompile(`var recordings = (\[.*?\])`)
-	camRewinds := []CamRewind{}
-	json.Unmarshal(re.FindSubmatch(body)[1], &camRewinds)
+	re := regexp.MustCompile(`var recordings = (\[.*\])`)
+	submatchGroups := re.FindSubmatch(body)
+	if len(submatchGroups) <= 1 {
+		log.Println(string(body))
+		return nil, errors.New("Failed to parse input")
+	}
 
-	return reverse(camRewinds)
+	camRewinds := []CamRewind{}
+	json.Unmarshal(submatchGroups[1], &camRewinds)
+
+	return reverse(camRewinds), nil
 }
 
 // reverse - returns the slice with its items in the reverse order https://stackoverflow.com/a/28058324
